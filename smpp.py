@@ -10,15 +10,16 @@ class SMPPApplication:
 			SMPPApplication._instance = object.__new__(cls)
 		return SMPPApplication._instance
 
-	def __init__(self, system_id, sms_client):
-		self._builder = _Builder(system_id)
+	def __init__(self, smpp_config, auth_base, sms_worker):
+		self._builder = _Builder(smpp_config.system_id)
 		self._parser = _Parser()
-		self._sms_client = sms_client
+		self._sms_worker = sms_worker
+		self._auth_base = auth_base
 
 	def build_response(self, request_data):
 		request = self._parser.parse_request(request_data)
 		if request.command == "submit_sm":
-			status = self._sms_client.send_sms(request.phone_number, request.message)
+			status = self._sms_worker.send_sms(request.phone_number, request.message)
 			return self._builder.build_response_from(request, status)
 		return self._builder.build_response_from(request)
 

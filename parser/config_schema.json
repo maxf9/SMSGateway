@@ -1,0 +1,49 @@
+{
+	"$schema" : "http://json-schema.org/draft-04/schema#",
+	"title" : "json schema for config file",
+	"type" : "object",
+	"properties" : {
+		"GatewaySettings" : {
+			"type" : "object",
+			"properties" : {
+				"Network" : {
+					"type" : "object",
+					"properties" : {
+						"ip_address" : {"type" : "string", "pattern" : "^(([1-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){1}(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){2}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$"},
+						"port" : {"type" : "integer", "minimum" : 1024, "maximum" : 65536, "exclusiveMinimum" : false, "exclusiveMaximum" : false},
+						"listen_backlog" : {"type" : "integer", "minimum" : -1, "maximum" : 128, "exclusiveMinimum" : false, "exclusiveMaximum" : false}
+					},
+					"required" : ["ip_address", "port"]
+				},
+				"SMPP" : {
+					"type" : "object",
+					"properties" : {
+						"system_id" : {"type" : "string", "pattern" : "^[a-zA-Z0-9_]+$"}
+					},
+					"required" : ["system_id"]
+				},
+				"MobileAdapter" : {
+					"type" : "object",
+					"properties" : {
+						"serial_port" : {"type" : "string"},
+						"baudrate" : {"type" : "integer", "enum" : [50,75,110,134,150,200,300,600,1200,1800,2400,4800,9600,19200,38400,57600,115200,230400,460800,500000,576000,921600,1000000,1152000,1500000,2000000,2500000,3000000,3500000,4000000]},
+						"data_bits" : {"type" : "integer", "enum" : [5, 6, 7, 8]},
+						"stop_bits" : {"type" : "number", "enum" : [1, 1.5, 2]},
+						"parity" : {"type" : "string", "enum" : ["None", "Even", "Odd", "Mark", "Space"]},
+						"flow_control" : {"type" : "string", "enum" : ["None", "XON/XOFF", "RTS/CTS", "DSR/DTR"]}
+					},
+					"required" : ["serial_port"]
+				}
+			},
+			"required" : ["Network", "SMPP", "MobileAdapter"]
+		},
+		"AuthBase" : {
+			"type" : "object",
+			"patternProperties" : {
+				"^[a-zA-Z0-9_]+$" : {"type" : "string", "minLength" : 4}
+            },
+            "additionalProperties": false
+		}
+	},
+	"required" : ["GatewaySettings", "AuthBase"]
+}

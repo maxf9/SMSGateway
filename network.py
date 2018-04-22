@@ -12,8 +12,9 @@ class TCPServer:
 			TCPServer._instance = object.__new__(cls)
 		return TCPServer._instance
 
-	def __init__(self, ip_address, port, application):
-		self._server = TCPServer._open_socket(ip_address, port)
+	def __init__(self, network_settings, application):
+		self._server = TCPServer._open_socket(network_settings.ip_address, network_settings.port, 
+			                                  network_settings.listen_backlog)
 		self.application = application
 		self._message_buffer = {}
 		self._connections = {}
@@ -21,13 +22,13 @@ class TCPServer:
 		self._polling.register(self._server.fileno(), EPOLLIN)
 
 	@staticmethod
-	def _open_socket(ip_address, port):
+	def _open_socket(ip_address, port, listen_backlog):
 		try:
 			server = socket(AF_INET, SOCK_STREAM)
 			server.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
 			server.setblocking(0)
 			server.bind((ip_address, port))
-			server.listen(5)
+			server.listen(listen_backlog)
 		except OSError as error:
 			print("TCPServer Error:", error)
 			exit(1)
