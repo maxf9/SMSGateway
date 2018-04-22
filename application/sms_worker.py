@@ -78,7 +78,7 @@ class SMSWorker:
 		return (tpdu_length, encoded_sms)
 
 	def send_sms(self, phone_number, encoding, message):
-		if not is_supported_encoding(encoding):
+		if not SMSWorker.is_supported_encoding(encoding):
 			return 8
 		try:
 			tpdu_length, encoded_sms = SMSWorker._encode_sms(phone_number, message)

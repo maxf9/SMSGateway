@@ -29,7 +29,7 @@ class SMPPApplication:
 		if request.parsed_status != 0:
 			return request.parsed_status
 		if request.system_id in self._auth_base:
-			if request.password == self.auth_base[request.system_id]:
+			if request.password == self._auth_base[request.system_id]:
 				return 0  # OK
 			return 13     # Bind failed
 		return 13

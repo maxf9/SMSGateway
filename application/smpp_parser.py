@@ -2,7 +2,7 @@ from re import match
 
 class SMPPParser:
 
-	_command_ids : {
+	_command_ids = {
 		4 : "submit_sm",
 	    6 : "unbind",
 	    9 : "bind_transceiver",
@@ -10,7 +10,7 @@ class SMPPParser:
 	}
 
 	def __init__(self):
-		self._parsers = {
+		self._parse_handlers = {
 		   "bind_transceiver" : self._parse_bind_transceiver,
 		   "enquire_link" : self._parse_enquire_link,
 		   "submit_sm" : self._parse_submit_sm,
@@ -26,11 +26,11 @@ class SMPPParser:
 
 	def parse_request(self, data):
 		try:
-			command = SMPPParser._command_ids[int.from_bytes(message[4:8], byteorder="big")]
+			command = SMPPParser._command_ids[int.from_bytes(data[4:8], byteorder="big")]
 		except KeyError:
 			return
-		sequence = int.from_bytes(message[12:16], byteorder="big")
-		return self._parsers[command](sequence, data[16:])
+		sequence = int.from_bytes(data[12:16], byteorder="big")
+		return self._parse_handlers[command](sequence, data[16:])
 
 	def _get_Coctet_string(byte_string, max_length):
 		number = 0
