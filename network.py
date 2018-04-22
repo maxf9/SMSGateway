@@ -16,8 +16,8 @@ class TCPServer:
 		self._server = TCPServer._open_socket(network_settings.ip_address, network_settings.port, 
 			                                  network_settings.listen_backlog)
 		self.application = application
-		self._message_buffer = {}
 		self._connections = {}
+		self._message_buffer = {}
 		self._polling = epoll()
 		self._polling.register(self._server.fileno(), EPOLLIN)
 
@@ -33,6 +33,11 @@ class TCPServer:
 			print("TCPServer Error:", error)
 			exit(1)
 		return server
+
+	def stop(self):
+		for connection in self._connections.values():
+			connection.close()
+		self._server.close()
 
 	def _handle_new_connection(self):
 		client, address = self._server.accept()
