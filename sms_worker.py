@@ -74,13 +74,15 @@ class SMSWorker:
 	def send_sms(self, phone_number, message):
 		try:
 			tpdu_length, encoded_sms = SMSWorker._encode_sms(phone_number, message)
-			com = Serial(self._serial_port)
+			com = Serial(self._serial_port, baudrate=self._baudrate, 
+				         bytesize=self._data_bits, stopbits=self._stop_bits, 
+				         parity=self._parity, **self._flow_control)
 			com.write(b'AT+CSCS="UCS2"\r')
 			com.write(b"AT+CMGF=0\r")
 			com.write(('AT+CMGS=' + str(tpdu_length) + '\r').encode())
 			com.write(encoded_sms + bytes([26]))
-		except SerialException as error:
-			print("Modem Error:", error)
+		except (SerialException, termios_error) as error:
+			print("Serial Error:", error)
 			return False
 		com.close()
 		return True
