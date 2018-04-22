@@ -33,6 +33,12 @@ class SMSWorker:
 		else:
 			return {}
 
+	@staticmethod
+	def is_supported_encoding(encoding):
+		if encoding == 8:  # UCS2
+			return True
+		return False
+
 	def _check_serial_port(self):
 		try:
 			com = Serial(self._serial_port, baudrate=self._baudrate, 
@@ -71,7 +77,9 @@ class SMSWorker:
 		tpdu_length = len(encoded_sms[2:]) // 2
 		return (tpdu_length, encoded_sms)
 
-	def send_sms(self, phone_number, message):
+	def send_sms(self, phone_number, encoding, message):
+		if not is_supported_encoding(encoding):
+			return 8
 		try:
 			tpdu_length, encoded_sms = SMSWorker._encode_sms(phone_number, message)
 			com = Serial(self._serial_port, baudrate=self._baudrate, 
@@ -83,6 +91,6 @@ class SMSWorker:
 			com.write(encoded_sms + bytes([26]))
 		except (SerialException, termios_error) as error:
 			print("Serial Error:", error)
-			return False
+			return 8
 		com.close()
-		return True
+		return 0

@@ -49,11 +49,14 @@ class TCPServer:
 	def _handle_read(self, fileno):
 		data = self._connections[fileno].recv(TCPServer._buffer)
 		if data:
-			self._message_buffer[fileno] = self.application.build_response(data)
-			self._polling.modify(fileno, EPOLLOUT)
+			response = self.application.build_response(data)
+			if response:
+				self._message_buffer[fileno] = response
+				self._polling.modify(fileno, EPOLLOUT)
+			else:
+				self._shutdown_connection(fileno)
 		else:
-			self._polling.modify(fileno, 0)
-			self._connections[fileno].shutdown(SHUT_RDWR)				
+		    self._shutdown_connection(fileno)				
 
 	def _handle_write(self, fileno):
 		close_indicator, data = self._message_buffer[fileno]
@@ -61,14 +64,17 @@ class TCPServer:
 		if not close_indicator:
 			self._polling.modify(fileno, EPOLLIN)
 		else:
-			self._polling.modify(fileno, 0)
-			self._connections[fileno].shutdown(SHUT_RDWR)
+			self._shutdown_connection(fileno)
 
 	def _handle_close(self, fileno):
 	    self._polling.unregister(fileno)
 	    self._connections[fileno].close()
 	    del self._connections[fileno]
 	    del self._message_buffer[fileno]
+
+	def _shutdown_connection(self, fileno):
+		self._polling.modify(fileno, 0)
+		self._connections[fileno].shutdown(SHUT_RDWR)
 
 	def start(self):
 		while True:

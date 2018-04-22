@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 from parser.config_parser import ConfigParser
+from application.smpp_core import SMPPApplication
+from application.sms_worker import SMSWorker
 from file_system import FileSystem
-from smpp import SMPPApplication
-from sms_worker import SMSWorker
 from network import TCPServer
 from signal import signal, SIGINT
 from sys import exit
