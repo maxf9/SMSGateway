@@ -17,6 +17,7 @@ class TCPServer:
 			                                  network_settings.listen_backlog)
 		self.application = application
 		self._connections = {}
+		self._addresses = {}
 		self._message_buffer = {}
 		self._polling = epoll()
 		self._polling.register(self._server.fileno(), EPOLLIN)
@@ -43,13 +44,14 @@ class TCPServer:
 		client, address = self._server.accept()
 		client.setblocking(0)
 		self._connections[client.fileno()] = client
+		self._addresses[client.fileno()] = address
 		self._message_buffer[client.fileno()] = b""
 		self._polling.register(client.fileno(), EPOLLIN)
 
 	def _handle_read(self, fileno):
 		data = self._connections[fileno].recv(TCPServer._buffer)
 		if data:
-			response = self.application.build_response(data)
+			response = self.application.build_response(data, self._addresses[fileno])
 			if response:
 				self._message_buffer[fileno] = response
 				self._polling.modify(fileno, EPOLLOUT)
@@ -69,7 +71,9 @@ class TCPServer:
 	def _handle_close(self, fileno):
 	    self._polling.unregister(fileno)
 	    self._connections[fileno].close()
+	    self.application.deregister_address(self._addresses[fileno])
 	    del self._connections[fileno]
+	    del self._addresses[fileno]
 	    del self._message_buffer[fileno]
 
 	def _shutdown_connection(self, fileno):
