@@ -31,7 +31,7 @@ class ConfigParser:
 class ConfigValidator:
 
 	_schema_file = dirname(__file__) + "/config_schema.json"
-	_error_basis = "Config Error: configuration file is not valid. Details: "
+	_error_basis = "Configuration file is not valid. Details: "
 
 	def __init__(self):
 		self._schema = JSONWorker.fetch_content(ConfigValidator._schema_file) 
@@ -46,13 +46,13 @@ class ConfigValidator:
 	def _print_errors(errors):
 		for error in errors:
 			if len(error.path) == 0:
-				print(ConfigValidator._error_basis + error.message)
+				Logger.error(ConfigValidator._error_basis + error.message)
 			elif len(error.path) == 1 or len(error.path) == 2:
-				print(ConfigValidator._error_basis + "%s in section '%s'" % (error.message, error.path[0]))
+				Logger.error(ConfigValidator._error_basis + "%s in section '%s'" % (error.message, error.path[0]))
 			elif len(error.path) == 3:
-				print(ConfigValidator._error_basis + "%s in section '%s' property '%s'" % (error.message, error.path[0], error.path[-1]))
+				Logger.error(ConfigValidator._error_basis + "%s in section '%s' property '%s'" % (error.message, error.path[0], error.path[-1]))
 			else:
-				print(ConfigValidator._error_basis + "%s in section '%s' property '%s'" % (error.message, error.path[0], error.path[-2]))
+				Logger.error(ConfigValidator._error_basis + "%s in section '%s' property '%s'" % (error.message, error.path[0], error.path[-2]))
 
 class JSONWorker:
 
@@ -61,7 +61,7 @@ class JSONWorker:
 		try:
 			decoded_content = json.loads(content)
 		except json.decoder.JSONDecodeError as error:
-			print("Config Error: can't parse the configuration file. Details: %s" % error)
+			Logger.error("Can't parse the configuration file. Details: %s" % error)
 			exit(1)
 		return decoded_content
 
@@ -69,6 +69,6 @@ class JSONWorker:
 	def fetch_content(file):
 		file_content = FileSystem.load_from(file)
 		if file_content is None:
-			print("Config Error: can't load the configuration file from path '%s'. Details: file does't exist or no permission to read it" % file)
+			Logger.error("Can't load the configuration file from path '%s'. Details: file does't exist or no permission to read it" % file)
 			exit(1)
 		return JSONWorker.decode_json(file_content)

@@ -31,11 +31,12 @@ class TCPServer:
 			server.bind((ip_address, port))
 			server.listen(listen_backlog)
 		except OSError as error:
-			print("TCPServer Error:", error)
+			Logger.error(error)
 			exit(1)
 		return server
 
 	def stop(self):
+		Logger.warning("Closing all open connections")
 		for connection in self._connections.values():
 			connection.close()
 		self._server.close()

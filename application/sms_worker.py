@@ -45,7 +45,7 @@ class SMSWorker:
 				         bytesize=self._data_bits, stopbits=self._stop_bits, 
 				         parity=self._parity, **self._flow_control)
 		except (SerialException, termios_error) as error:
-			print("Serial Error:", error)
+			Logger.error(error)
 			exit(1)
 		else:
 			com.close()
@@ -90,7 +90,7 @@ class SMSWorker:
 			com.write(('AT+CMGS=' + str(tpdu_length) + '\r').encode())
 			com.write(encoded_sms + bytes([26]))
 		except (SerialException, termios_error) as error:
-			print("Serial Error:", error)
+			Logger.error(error)
 			return 8
 		com.close()
 		return 0

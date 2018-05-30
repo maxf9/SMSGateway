@@ -75,6 +75,7 @@ class SMPPParser:
 			return request
 		request.encoding = int.from_bytes(data[41:42], byteorder="big")
 		request.message = data[44:].decode("utf-16-be")
+		Logger.info("Request for number %s\nMessage: %s" % (request.phone_number, request.message))
 		return request
 
 	def _parse_unbind(self, sequence, data):
