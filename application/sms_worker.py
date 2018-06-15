@@ -45,7 +45,7 @@ class SMSWorker:
 				         bytesize=self._data_bits, stopbits=self._stop_bits, 
 				         parity=self._parity, **self._flow_control)
 		except (SerialException, termios_error) as error:
-			Logger.error(error)
+			Logger.error(str(error))
 			exit(1)
 		else:
 			com.close()
